@@ -22,6 +22,23 @@ const Scroller = () => {
 
   // --- HELPER FUNCTIONS ---
 
+  // Check if target is an editable text field
+  function isInputOrText(target) {
+    if (!target) return false;
+    const tagName = target.tagName.toLowerCase();
+    
+    // Check for standard input fields
+    if (tagName === 'input' || tagName === 'textarea') return true;
+    
+    // Check for contenteditable (common in modern chat apps/rich text editors)
+    if (target.isContentEditable || target.getAttribute('contenteditable') === 'true') return true;
+
+    // Check if parent is contenteditable (sometimes the click hits a <span> inside the editor)
+    if (target.closest('[contenteditable="true"]')) return true;
+
+    return false;
+  }
+
   function getScrollableTarget(node) {
     if (!node) return window;
     let curr = node;
@@ -103,6 +120,7 @@ const Scroller = () => {
     function handleMouseDown(e) {
       if (!isEnabled.current) return; // Feature OFF
 
+      // If we are currently scrolling, any click stops it
       if (isScrolling.current) {
         stopScrolling();
         e.preventDefault();
@@ -110,8 +128,12 @@ const Scroller = () => {
         return;
       }
 
-      // Immediate start on Right Click (Button 2)
+      // Check Button 2 (Right Click)
       if (e.button === 2) {
+        // FIX: If clicking on an input/textarea, DO NOT start scrolling.
+        // Let the default browser behavior handle it (Context Menu).
+        if (isInputOrText(e.target)) return;
+
         scrollTarget.current = getScrollableTarget(e.target);
         startScrolling(e.clientX, e.clientY);
       }
@@ -125,7 +147,13 @@ const Scroller = () => {
     }
 
     function handleContextMenu(e) {
+      // If feature is enabled...
       if (isEnabled.current) {
+        // If we are clicking an input field, DO NOT prevent default. 
+        // Allow the spellcheck/context menu to appear.
+        if (isInputOrText(e.target)) return;
+
+        // Otherwise, prevent the menu so our scroller UI looks clean
         e.preventDefault();
         return false;
       }
