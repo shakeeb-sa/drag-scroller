@@ -1,7 +1,8 @@
 {
-  "name": "drag-scroller",
+  "name": "react-drag-scroller",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.1.0",
+  "description": "A React-based Chrome extension for drag-scrolling with physics and smart controls.",
   "type": "module",
   "scripts": {
     "dev": "vite",
