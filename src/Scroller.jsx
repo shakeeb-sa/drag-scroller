@@ -33,9 +33,17 @@ const Scroller = () => {
   function isInputOrText(target) {
     if (!target) return false;
     const tagName = target.tagName.toLowerCase();
-    if (tagName === 'input' || tagName === 'textarea') return true;
+
+    // 1. Exclude Inputs, Textareas, and Images
+    if (tagName === 'input' || tagName === 'textarea' || tagName === 'img') return true;
+
+    // 2. Exclude Links (and anything inside a link)
+    if (target.closest('a')) return true;
+
+    // 3. Exclude Editable Text (Chats/CMS)
     if (target.isContentEditable || target.getAttribute('contenteditable') === 'true') return true;
     if (target.closest('[contenteditable="true"]')) return true;
+
     return false;
   }
 
